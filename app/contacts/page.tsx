@@ -18,7 +18,7 @@ import { Search, Loader2 } from 'lucide-react';
 export default function ContactsPage() {
   const [contacts, setContacts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [emailStatus, setEmailStatus] = useState('All');
+  const [emailStatuses, setEmailStatuses] = useState<string[]>([]);
   const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
   const [titleFilter, setTitleFilter] = useState('');
   const [availableCompanies, setAvailableCompanies] = useState<string[]>([]);
@@ -33,7 +33,7 @@ export default function ContactsPage() {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (emailStatus && emailStatus !== 'All') params.append('email_status', emailStatus);
+      if (emailStatuses.length > 0) params.append('email_statuses', emailStatuses.join(','));
       if (selectedCompanies.length > 0) params.append('companies', selectedCompanies.join(','));
       if (titleFilter) params.append('title', titleFilter);
 
@@ -57,7 +57,7 @@ export default function ContactsPage() {
   useEffect(() => {
     fetchContacts();
     setCurrentPage(1); // Reset to first page when filters change
-  }, [emailStatus, selectedCompanies, titleFilter]);
+  }, [emailStatuses, selectedCompanies, titleFilter]);
 
   // Pagination calculations
   const totalPages = Math.ceil(contacts.length / itemsPerPage);
@@ -86,6 +86,14 @@ export default function ContactsPage() {
 
   const allSelected = paginatedContacts.length > 0 && paginatedContacts.every(c => selectedIds.has(c.id));
   const someSelected = selectedIds.size > 0 && !allSelected;
+
+  const toggleEmailStatus = (status: string) => {
+    setEmailStatuses(prev =>
+      prev.includes(status)
+        ? prev.filter(s => s !== status)
+        : [...prev, status]
+    );
+  };
 
   const handleStage = async () => {
     if (selectedIds.size === 0) {
@@ -117,7 +125,7 @@ export default function ContactsPage() {
   return (
     <div className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="text-2xl font-bold text-orange-600 mb-2">carrot</div>
+        <div className="text-2xl font-bold text-white bg-purple-600 px-4 py-2 rounded mb-2 inline-block">daikon</div>
         <h1 className="text-3xl font-bold mb-2">UI Command Center</h1>
         <p className="text-gray-500 mb-8">Campaign Contacts</p>
 
@@ -128,9 +136,9 @@ export default function ContactsPage() {
             <span className="text-sm text-gray-600">
               {contacts.length} contacts
             </span>
-            {(emailStatus !== 'All' || selectedCompanies.length > 0 || titleFilter) && (
+            {(emailStatuses.length > 0 || selectedCompanies.length > 0 || titleFilter) && (
               <span className="text-sm text-blue-600">
-                ({[emailStatus !== 'All' ? 1 : 0, selectedCompanies.length > 0 ? 1 : 0, titleFilter ? 1 : 0].reduce((a, b) => a + b, 0)} filters active)
+                ({[emailStatuses.length > 0 ? 1 : 0, selectedCompanies.length > 0 ? 1 : 0, titleFilter ? 1 : 0].reduce((a, b) => a + b, 0)} filters active)
               </span>
             )}
           </div>
@@ -138,16 +146,22 @@ export default function ContactsPage() {
           {/* Filter Controls */}
           <div className="flex flex-wrap gap-3">
             {/* Email Status Filter */}
-            <Select
-              value={emailStatus}
-              onChange={(e) => setEmailStatus(e.target.value)}
-              className="w-48"
-            >
-              <option value="All">Email Status: All</option>
-              <option value="safe">Email Status: Safe</option>
-              <option value="catch_all">Email Status: Catch All</option>
-              <option value="unsafe">Email Status: Unsafe</option>
-            </Select>
+            <div className="flex items-center gap-2 border border-gray-300 rounded-md px-3 py-1.5 bg-white">
+              <span className="text-sm text-gray-600 mr-1">Email:</span>
+              {['safe', 'catch_all', 'unsafe'].map((status) => (
+                <label key={status} className="flex items-center gap-1.5 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded">
+                  <input
+                    type="checkbox"
+                    checked={emailStatuses.includes(status)}
+                    onChange={() => toggleEmailStatus(status)}
+                    className="w-4 h-4 text-blue-600 cursor-pointer"
+                  />
+                  <span className="text-sm capitalize">
+                    {status === 'catch_all' ? 'Catch All' : status}
+                  </span>
+                </label>
+              ))}
+            </div>
 
             {/* Company Filter */}
             <div className="relative">
@@ -178,11 +192,11 @@ export default function ContactsPage() {
             />
 
             {/* Clear All Filters */}
-            {(emailStatus !== 'All' || selectedCompanies.length > 0 || titleFilter) && (
+            {(emailStatuses.length > 0 || selectedCompanies.length > 0 || titleFilter) && (
               <Button
                 variant="outline"
                 onClick={() => {
-                  setEmailStatus('All');
+                  setEmailStatuses([]);
                   setSelectedCompanies([]);
                   setTitleFilter('');
                 }}

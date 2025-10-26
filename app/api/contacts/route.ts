@@ -5,11 +5,11 @@ export async function GET(request: NextRequest) {
   try {
     console.log('=== CONTACTS API CALLED ===');
     const searchParams = request.nextUrl.searchParams;
-    const emailStatus = searchParams.get('email_status') || '';
+    const emailStatuses = searchParams.get('email_statuses') || '';
     const companies = searchParams.get('companies') || '';
     const title = searchParams.get('title') || '';
 
-    console.log('Filter params:', { emailStatus, companies, title });
+    console.log('Filter params:', { emailStatuses, companies, title });
 
     let query = supabase
       .from('contacts_view')
@@ -18,10 +18,11 @@ export async function GET(request: NextRequest) {
 
     console.log('Querying contacts_view...');
 
-    // Apply email status filter if provided and not "All"
-    if (emailStatus && emailStatus !== 'All') {
-      console.log('Applying email status filter:', emailStatus);
-      query = query.eq('email_status', emailStatus);
+    // Apply email status filter if provided (multiple statuses with OR)
+    if (emailStatuses) {
+      const statusList = emailStatuses.split(',').map(s => s.trim());
+      console.log('Applying email status filter (OR):', statusList);
+      query = query.in('email_status', statusList);
     }
 
     // Apply company filter if provided
