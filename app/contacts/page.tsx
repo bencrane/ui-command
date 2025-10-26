@@ -25,9 +25,6 @@ export default function ContactsPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(50);
-  const [campaignKey, setCampaignKey] = useState('inboundagency_launch');
-  const [enrolling, setEnrolling] = useState(false);
-  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   // Fetch contacts
   const fetchContacts = async () => {
@@ -88,67 +85,12 @@ export default function ContactsPage() {
   const allSelected = paginatedContacts.length > 0 && paginatedContacts.every(c => selectedIds.has(c.id));
   const someSelected = selectedIds.size > 0 && !allSelected;
 
-  const showNotification = (message: string, type: 'success' | 'error') => {
-    setNotification({ message, type });
-    setTimeout(() => setNotification(null), 5000);
-  };
-
-  const handleEnroll = async () => {
-    if (selectedIds.size === 0) {
-      showNotification('Please select at least one contact', 'error');
-      return;
-    }
-
-    setEnrolling(true);
-    try {
-      const response = await fetch('/api/enroll-contacts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contact_ids: Array.from(selectedIds),
-          campaign_key: campaignKey
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        showNotification(
-          `Successfully enrolled ${data.enrollment.contact_count} contact${data.enrollment.contact_count !== 1 ? 's' : ''} in ${data.enrollment.campaign_name}`,
-          'success'
-        );
-        console.log('Enrollment data:', data.enrollment);
-        setSelectedIds(new Set());
-      } else {
-        showNotification(data.error || 'Failed to enroll contacts', 'error');
-      }
-    } catch (error) {
-      console.error('Enrollment error:', error);
-      showNotification('Failed to enroll contacts', 'error');
-    } finally {
-      setEnrolling(false);
-    }
-  };
-
   return (
     <div className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-2xl font-bold text-yellow-600 mb-2">banana</div>
         <h1 className="text-3xl font-bold mb-2">UI Command Center</h1>
         <p className="text-gray-500 mb-8">Campaign Contacts</p>
-
-        {/* Notification Toast */}
-        {notification && (
-          <div
-            className={`fixed top-4 right-4 p-4 rounded-md shadow-lg z-50 ${
-              notification.type === 'success'
-                ? 'bg-green-600 text-white'
-                : 'bg-red-600 text-white'
-            }`}
-          >
-            {notification.message}
-          </div>
-        )}
 
         {/* Filters */}
         <div className="mb-6 space-y-4">
@@ -242,40 +184,6 @@ export default function ContactsPage() {
             </div>
           )}
         </div>
-
-        {/* Campaign Enrollment */}
-        {selectedIds.size > 0 && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-center gap-4">
-              <span className="text-sm font-medium text-gray-700">
-                {selectedIds.size} contact{selectedIds.size !== 1 ? 's' : ''} selected
-              </span>
-              <div className="flex items-center gap-2">
-                <Select
-                  value={campaignKey}
-                  onChange={(e) => setCampaignKey(e.target.value)}
-                  className="w-64"
-                >
-                  <option value="inboundagency_launch">InboundAgency.com Launch</option>
-                </Select>
-                <Button
-                  onClick={handleEnroll}
-                  disabled={enrolling}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  {enrolling ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      Enrolling...
-                    </>
-                  ) : (
-                    `Enroll in Campaign`
-                  )}
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Table */}
         {loading ? (
