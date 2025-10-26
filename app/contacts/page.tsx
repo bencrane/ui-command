@@ -132,6 +132,11 @@ export default function ContactsPage() {
   return (
     <div className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
+        <div className="bg-red-600 text-white text-center p-6 mb-6 rounded-lg border-4 border-red-900">
+          <h2 className="text-5xl font-bold">⚠️ CONTACTS PAGE - DEPLOYMENT TEST ⚠️</h2>
+          <p className="text-xl mt-3">This warning confirms the latest code is deployed!</p>
+        </div>
+
         <h1 className="text-3xl font-bold mb-2">UI Command Center</h1>
         <p className="text-gray-500 mb-8">Select and stage contacts for campaigns</p>
 
