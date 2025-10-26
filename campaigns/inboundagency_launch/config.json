@@ -1,0 +1,12 @@
+{
+  "campaign_key": "inboundagency_launch",
+  "campaign_name": "Inbound Agency Launch Outreach",
+  "core_values_mapping": {
+    "first_name": "first_name",
+    "company_name": "company_name",
+    "company_domain": "company_domain",
+    "job_title": "job_title"
+  },
+  "required_fields": ["first_name", "company_name"],
+  "optional_fields": ["job_title", "company_domain"]
+}
