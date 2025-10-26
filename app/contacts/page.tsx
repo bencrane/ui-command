@@ -127,7 +127,7 @@ export default function ContactsPage() {
     <div className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold mb-2">UI Command Center</h1>
-        <p className="text-muted-foreground mb-8">Select and stage contacts for campaigns</p>
+        <p className="text-gray-500 mb-8">Select and stage contacts for campaigns</p>
 
         {/* Notification Toast */}
         {notification && (
@@ -185,10 +185,10 @@ export default function ContactsPage() {
         {/* Table */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
           </div>
         ) : contacts.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
+          <div className="text-center py-12 text-gray-500">
             No contacts found
           </div>
         ) : (
@@ -224,10 +224,10 @@ export default function ContactsPage() {
                     </TableCell>
                     <TableCell>{contact.job_title || '-'}</TableCell>
                     <TableCell>{contact.company?.company_name || '-'}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className="text-sm text-gray-500">
                       {contact.work_email || '-'}
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className="text-sm text-gray-500">
                       {contact.company?.company_domain || '-'}
                     </TableCell>
                   </TableRow>
