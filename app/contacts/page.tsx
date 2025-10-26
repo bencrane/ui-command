@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select } from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -20,6 +21,7 @@ export default function ContactsPage() {
   const [contacts, setContacts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [emailStatus, setEmailStatus] = useState('All');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [campaignKey, setCampaignKey] = useState('inboundagency_launch');
   const [staging, setStaging] = useState(false);
@@ -29,10 +31,14 @@ export default function ContactsPage() {
   } | null>(null);
 
   // Fetch contacts
-  const fetchContacts = async (search: string = '') => {
+  const fetchContacts = async (search: string = '', status: string = 'All') => {
     setLoading(true);
     try {
-      const url = `/api/contacts${search ? `?search=${encodeURIComponent(search)}` : ''}`;
+      const params = new URLSearchParams();
+      if (search) params.append('search', search);
+      if (status && status !== 'All') params.append('email_status', status);
+
+      const url = `/api/contacts${params.toString() ? `?${params.toString()}` : ''}`;
       const response = await fetch(url);
       const data = await response.json();
       setContacts(data.contacts || []);
@@ -45,11 +51,11 @@ export default function ContactsPage() {
   };
 
   useEffect(() => {
-    fetchContacts();
-  }, []);
+    fetchContacts(searchQuery, emailStatus);
+  }, [emailStatus]);
 
   const handleSearch = () => {
-    fetchContacts(searchQuery);
+    fetchContacts(searchQuery, emailStatus);
   };
 
   const handleSelectAll = (checked: boolean) => {
@@ -126,8 +132,13 @@ export default function ContactsPage() {
   return (
     <div className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
+        <div className="bg-red-600 text-white text-center p-6 mb-6 rounded-lg border-4 border-red-900">
+          <h2 className="text-5xl font-bold">⚠️ CONTACTS PAGE - DEPLOYMENT TEST ⚠️</h2>
+          <p className="text-xl mt-3">This warning confirms the latest code is deployed!</p>
+        </div>
+
         <h1 className="text-3xl font-bold mb-2">UI Command Center</h1>
-        <p className="text-muted-foreground mb-8">Select and stage contacts for campaigns</p>
+        <p className="text-gray-500 mb-8">Select and stage contacts for campaigns</p>
 
         {/* Notification Toast */}
         {notification && (
@@ -143,28 +154,43 @@ export default function ContactsPage() {
         )}
 
         {/* Actions Bar */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          {/* Search */}
-          <div className="flex gap-2 flex-1">
-            <Input
-              placeholder="Search by name, company, or title..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              className="flex-1"
-            />
-            <Button onClick={handleSearch} variant="outline">
-              <Search className="h-4 w-4" />
-            </Button>
+        <div className="flex flex-col gap-4 mb-6">
+          {/* Search and Filter Row */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* Search */}
+            <div className="flex gap-2 flex-1">
+              <Input
+                placeholder="Search by name, company, or title..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                className="flex-1"
+              />
+              <Button onClick={handleSearch} variant="outline">
+                <Search className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Email Status Filter */}
+            <Select
+              value={emailStatus}
+              onChange={(e) => setEmailStatus(e.target.value)}
+              className="w-48"
+            >
+              <option value="All">All Email Status</option>
+              <option value="safe">Safe</option>
+              <option value="catch_all">Catch All</option>
+              <option value="unsafe">Unsafe</option>
+            </Select>
           </div>
 
-          {/* Campaign Staging */}
+          {/* Campaign Staging Row */}
           <div className="flex gap-2">
             <Input
               placeholder="Campaign key"
               value={campaignKey}
               onChange={(e) => setCampaignKey(e.target.value)}
-              className="w-48"
+              className="flex-1 sm:w-64"
             />
             <Button
               onClick={handleStage}
@@ -185,10 +211,10 @@ export default function ContactsPage() {
         {/* Table */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
           </div>
         ) : contacts.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
+          <div className="text-center py-12 text-gray-500">
             No contacts found
           </div>
         ) : (
@@ -208,6 +234,7 @@ export default function ContactsPage() {
                   <TableHead>Company</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Domain</TableHead>
+                  <TableHead>Email Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -220,15 +247,18 @@ export default function ContactsPage() {
                       />
                     </TableCell>
                     <TableCell className="font-medium">
-                      {contact.person?.full_name || '-'}
+                      {contact.full_name || '-'}
                     </TableCell>
                     <TableCell>{contact.job_title || '-'}</TableCell>
-                    <TableCell>{contact.company?.company_name || '-'}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell>{contact.company_name || '-'}</TableCell>
+                    <TableCell className="text-sm text-gray-500">
                       {contact.work_email || '-'}
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {contact.company?.company_domain || '-'}
+                    <TableCell className="text-sm text-gray-500">
+                      {contact.company_domain || '-'}
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-500">
+                      {contact.email_status || '-'}
                     </TableCell>
                   </TableRow>
                 ))}

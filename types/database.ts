@@ -56,6 +56,11 @@ export interface Person {
   full_name: string;
   first_name: string | null;
   last_name: string | null;
+  job_title: string | null;
+  company_name: string | null;
+  company_domain: string | null;
+  work_email: string | null;
+  email_status: string | null;
   person_linkedin_url: string | null;
   company_id: string | null;
   created_at: string;

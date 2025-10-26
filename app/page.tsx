@@ -5,12 +5,17 @@ export default function Home() {
   return (
     <div className="min-h-screen p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-4">UI Command Center</h1>
-        <p className="text-muted-foreground mb-8">Campaign Staging Dashboard</p>
+        <div className="bg-yellow-400 text-black text-center p-8 mb-8 rounded-lg border-4 border-black">
+          <h1 className="text-6xl font-bold">🚨 TEST - DEPLOYMENT CHECK 🚨</h1>
+          <p className="text-2xl mt-4">If you see this, the deployment is working!</p>
+        </div>
 
-        <div className="border rounded-lg p-6">
+        <h1 className="text-3xl font-bold mb-4">UI Command Center</h1>
+        <p className="text-gray-500 mb-8">Campaign Staging Dashboard</p>
+
+        <div className="border border-gray-200 rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4">Getting Started</h2>
-          <p className="text-muted-foreground mb-6">
+          <p className="text-gray-600 mb-6">
             This is an internal staging dashboard for managing outbound campaign contacts.
             Select contacts, apply campaign-specific transformations, and stage them for delivery.
           </p>
@@ -20,13 +25,13 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="mt-8 border rounded-lg p-6">
+        <div className="mt-8 border border-gray-200 rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4">Setup Instructions</h2>
-          <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
-            <li>Run the database schema: <code className="bg-muted px-1 py-0.5 rounded">database/schema.sql</code></li>
-            <li>Seed sample data: <code className="bg-muted px-1 py-0.5 rounded">database/seed.sql</code></li>
+          <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600">
+            <li>Run the database schema: <code className="bg-gray-100 px-1 py-0.5 rounded">database/schema.sql</code></li>
+            <li>Seed sample data: <code className="bg-gray-100 px-1 py-0.5 rounded">database/seed.sql</code></li>
             <li>Configure environment variables (see .env.example)</li>
-            <li>Start the dev server: <code className="bg-muted px-1 py-0.5 rounded">npm run dev</code></li>
+            <li>Start the dev server: <code className="bg-gray-100 px-1 py-0.5 rounded">npm run dev</code></li>
           </ol>
         </div>
       </div>
