@@ -8,8 +8,8 @@ This is a single-user, internal staging dashboard designed for a specific busine
 
 ### What It Does
 
-1. **View & Select Contacts** - Browse contacts with joined person and company data
-2. **Search & Filter** - Find contacts by name, company, or job title
+1. **View & Select Contacts** - Browse contacts from the people table (only those with work emails)
+2. **Search & Filter** - Find contacts by name, company, or job title; filter by email status (safe, catch_all, unsafe)
 3. **Stage for Campaigns** - Select contacts and apply campaign-specific transformations
 4. **Config-Driven Logic** - Use GitHub-hosted config files to define field mappings and requirements
 
@@ -31,17 +31,21 @@ This is a single-user, internal staging dashboard designed for a specific busine
 
 ### Tables
 
-1. **companies** - Company-level data
+1. **people** - Individual person data with contact information
+   - `id`, `full_name`, `first_name`, `last_name`, `job_title`, `company_name`, `company_domain`, `work_email`, `email_status`, `person_linkedin_url`, `company_id`
+
+2. **companies** - Company-level data (reference only)
    - `id`, `company_name`, `company_domain`, `company_linkedin_url`
 
-2. **people** - Individual person data
-   - `id`, `full_name`, `first_name`, `last_name`, `person_linkedin_url`, `company_id`
+3. **campaign_contacts** - Staged contacts with campaign-specific input values
+   - `id`, `contact_id` (references people.id), `campaign_key`, `input_values_jsonb`
 
-3. **contacts** - Contact-specific outreach information (main join table)
-   - `id`, `person_id`, `company_id`, `job_title`, `work_email`, `phone_number`
+### Views
 
-4. **campaign_contacts** - Staged contacts with campaign-specific input values
-   - `id`, `contact_id`, `campaign_key`, `input_values_jsonb`
+1. **contacts_view** - Filtered view for UI display
+   - Selects from `people` table
+   - Only includes records where `work_email IS NOT NULL`
+   - Columns: `id`, `full_name`, `first_name`, `work_email`, `job_title`, `company_name`, `company_domain`, `email_status`
 
 ## Setup Instructions
 
@@ -72,17 +76,15 @@ Required variables:
 
 ### 4. Set Up Database
 
-Run the schema creation script in your Supabase SQL editor:
+Run these SQL scripts in your Supabase SQL editor in order:
 
 ```sql
--- Run the contents of database/schema.sql
+-- 1. Run the contents of database/schema.sql (creates tables)
+-- 2. Run the contents of database/views.sql (creates contacts_view)
+-- 3. Run the contents of database/seed.sql (optional sample data)
 ```
 
-Then seed with sample data:
-
-```sql
--- Run the contents of database/seed.sql
-```
+**Note:** The `contacts_view` is required for the UI to function properly.
 
 ### 5. Create Campaign Config Files
 

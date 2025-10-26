@@ -43,27 +43,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fetch all contacts with joined person and company data
-    const { data: contacts, error: fetchError } = await supabase
-      .from('contacts')
-      .select(`
-        *,
-        person:people(*),
-        company:companies(*)
-      `)
+    // Fetch all people records
+    const { data: people, error: fetchError } = await supabase
+      .from('people')
+      .select('*')
       .in('id', contact_ids);
 
     if (fetchError) {
-      console.error('Error fetching contacts:', fetchError);
+      console.error('Error fetching people:', fetchError);
       return NextResponse.json(
-        { success: false, error: 'Failed to fetch contacts from database' },
+        { success: false, error: 'Failed to fetch people from database' },
         { status: 500 }
       );
     }
 
-    if (!contacts || contacts.length === 0) {
+    if (!people || people.length === 0) {
       return NextResponse.json(
-        { success: false, error: 'No contacts found with the provided IDs' },
+        { success: false, error: 'No people found with the provided IDs' },
         { status: 404 }
       );
     }
@@ -72,13 +68,9 @@ export async function POST(request: NextRequest) {
     const errors: string[] = [];
     let skippedCount = 0;
 
-    // Process each contact
-    for (const contact of contacts as any[]) {
+    // Process each person
+    for (const person of people as any[]) {
       try {
-        // Extract data from nested objects
-        const person = contact.person;
-        const company = contact.company;
-
         // Build the input values object based on config mapping
         const inputValues: Record<string, any> = {};
         const missingRequired: string[] = [];
@@ -87,27 +79,25 @@ export async function POST(request: NextRequest) {
         for (const [mappingKey, dbField] of Object.entries(config.core_values_mapping)) {
           let value = null;
 
-          // Get value from appropriate source (contact, person, or company)
+          // Get value directly from person record
           if (dbField === 'first_name') {
-            value = person?.first_name;
+            value = person.first_name;
           } else if (dbField === 'last_name') {
-            value = person?.last_name;
+            value = person.last_name;
           } else if (dbField === 'full_name') {
-            value = person?.full_name;
+            value = person.full_name;
           } else if (dbField === 'person_linkedin_url') {
-            value = person?.person_linkedin_url;
+            value = person.person_linkedin_url;
           } else if (dbField === 'company_name') {
-            value = company?.company_name;
+            value = person.company_name;
           } else if (dbField === 'company_domain') {
-            value = company?.company_domain;
-          } else if (dbField === 'company_linkedin_url') {
-            value = company?.company_linkedin_url;
+            value = person.company_domain;
           } else if (dbField === 'job_title') {
-            value = contact.job_title;
+            value = person.job_title;
           } else if (dbField === 'work_email') {
-            value = contact.work_email;
-          } else if (dbField === 'phone_number') {
-            value = contact.phone_number;
+            value = person.work_email;
+          } else if (dbField === 'email_status') {
+            value = person.email_status;
           }
 
           // Check if required field is missing
@@ -118,24 +108,24 @@ export async function POST(request: NextRequest) {
           inputValues[mappingKey] = value;
         }
 
-        // Skip contact if any required fields are missing
+        // Skip person if any required fields are missing
         if (missingRequired.length > 0) {
           skippedCount++;
-          errors.push(`Contact ${contact.id} (${person?.full_name || 'Unknown'}) skipped: missing required fields [${missingRequired.join(', ')}]`);
-          console.log(`Skipping contact ${contact.id}: missing required fields [${missingRequired.join(', ')}]`);
+          errors.push(`Person ${person.id} (${person.full_name || 'Unknown'}) skipped: missing required fields [${missingRequired.join(', ')}]`);
+          console.log(`Skipping person ${person.id}: missing required fields [${missingRequired.join(', ')}]`);
           continue;
         }
 
         // Prepare record for insertion
         stagedRecords.push({
-          contact_id: contact.id,
+          contact_id: person.id,
           campaign_key: config.campaign_key,
           input_values_jsonb: inputValues,
         });
       } catch (error) {
         skippedCount++;
-        errors.push(`Error processing contact ${contact.id}: ${error}`);
-        console.error(`Error processing contact ${contact.id}:`, error);
+        errors.push(`Error processing person ${person.id}: ${error}`);
+        console.error(`Error processing person ${person.id}:`, error);
       }
     }
 
