@@ -41,7 +41,9 @@ export default function ContactsPage() {
       setContacts(data.contacts || []);
 
       // Extract unique companies from results
-      const companies = Array.from(new Set(data.contacts.map((c: any) => c.company_name).filter(Boolean)));
+      const companies = Array.from(
+        new Set(data.contacts.map((c: any) => c.company_name).filter(Boolean))
+      ) as string[];
       setAvailableCompanies(companies.sort());
     } catch (error) {
       console.error('Error fetching contacts:', error);
