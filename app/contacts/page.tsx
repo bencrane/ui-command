@@ -208,6 +208,7 @@ export default function ContactsPage() {
                   <TableHead>Company</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Domain</TableHead>
+                  <TableHead>Email Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -220,15 +221,18 @@ export default function ContactsPage() {
                       />
                     </TableCell>
                     <TableCell className="font-medium">
-                      {contact.person?.full_name || '-'}
+                      {contact.full_name || '-'}
                     </TableCell>
                     <TableCell>{contact.job_title || '-'}</TableCell>
-                    <TableCell>{contact.company?.company_name || '-'}</TableCell>
+                    <TableCell>{contact.company_name || '-'}</TableCell>
                     <TableCell className="text-sm text-gray-500">
                       {contact.work_email || '-'}
                     </TableCell>
                     <TableCell className="text-sm text-gray-500">
-                      {contact.company?.company_domain || '-'}
+                      {contact.company_domain || '-'}
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-500">
+                      {contact.email_status || '-'}
                     </TableCell>
                   </TableRow>
                 ))}
