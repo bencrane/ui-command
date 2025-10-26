@@ -30,9 +30,18 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query;
 
     if (error) {
-      console.error('Error fetching contacts:', error);
+      console.error('Supabase error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
       return NextResponse.json(
-        { error: 'Failed to fetch contacts' },
+        {
+          error: 'Failed to fetch contacts',
+          details: error.message,
+          supabaseError: error
+        },
         { status: 500 }
       );
     }
