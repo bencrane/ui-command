@@ -1,0 +1,26 @@
+{
+  "campaign_key": "inboundagency_launch",
+  "campaign_name": "InboundAgency.com Domain Sale - HubSpot Partners",
+
+  "core_db_values": [
+    "first_name",
+    "company_name",
+    "company_domain"
+  ],
+
+  "misc_db_values": [
+    "full_name",
+    "job_title",
+    "work_email",
+    "company_linkedin_url",
+    "person_linkedin_url"
+  ],
+
+  "campaign_input_values": [
+    "first_name",
+    "company_name",
+    "company_domain",
+    "tier",
+    "budget"
+  ]
+}
