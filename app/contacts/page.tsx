@@ -25,6 +25,8 @@ export default function ContactsPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(50);
+  const [selectedCampaign, setSelectedCampaign] = useState('inboundagency_launch');
+  const [staging, setStaging] = useState(false);
 
   // Fetch contacts
   const fetchContacts = async () => {
@@ -85,10 +87,37 @@ export default function ContactsPage() {
   const allSelected = paginatedContacts.length > 0 && paginatedContacts.every(c => selectedIds.has(c.id));
   const someSelected = selectedIds.size > 0 && !allSelected;
 
+  const handleStage = async () => {
+    if (selectedIds.size === 0) {
+      alert('Please select at least one contact');
+      return;
+    }
+
+    setStaging(true);
+    try {
+      // Get the selected contact objects
+      const selectedContacts = contacts.filter(c => selectedIds.has(c.id));
+
+      console.log('Staging contacts:', {
+        campaign: selectedCampaign,
+        count: selectedContacts.length,
+        contacts: selectedContacts
+      });
+
+      alert(`Successfully staged ${selectedContacts.length} contact${selectedContacts.length !== 1 ? 's' : ''} for campaign: ${selectedCampaign}`);
+      setSelectedIds(new Set());
+    } catch (error) {
+      console.error('Staging error:', error);
+      alert('Failed to stage contacts');
+    } finally {
+      setStaging(false);
+    }
+  };
+
   return (
     <div className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="text-2xl font-bold text-yellow-600 mb-2">banana</div>
+        <div className="text-2xl font-bold text-orange-600 mb-2">carrot</div>
         <h1 className="text-3xl font-bold mb-2">UI Command Center</h1>
         <p className="text-gray-500 mb-8">Campaign Contacts</p>
 
@@ -184,6 +213,44 @@ export default function ContactsPage() {
             </div>
           )}
         </div>
+
+        {/* Campaign Staging */}
+        {selectedIds.size > 0 && (
+          <div className="mb-6 p-4 bg-blue-50 border-2 border-blue-300 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-semibold text-gray-800">
+                  {selectedIds.size} contact{selectedIds.size !== 1 ? 's' : ''} selected
+                </span>
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700">Campaign:</label>
+                  <Select
+                    value={selectedCampaign}
+                    onChange={(e) => setSelectedCampaign(e.target.value)}
+                    className="w-64"
+                  >
+                    <option value="inboundagency_launch">InboundAgency.com Launch</option>
+                    <option value="demo_campaign">Demo Campaign</option>
+                  </Select>
+                </div>
+              </div>
+              <Button
+                onClick={handleStage}
+                disabled={staging}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+              >
+                {staging ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Staging...
+                  </>
+                ) : (
+                  'Stage'
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Table */}
         {loading ? (
