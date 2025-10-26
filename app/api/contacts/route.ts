@@ -5,11 +5,17 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const search = searchParams.get('search') || '';
+    const emailStatus = searchParams.get('email_status') || '';
 
     let query = supabase
-      .from('people')
+      .from('contacts_view')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('id', { ascending: false });
+
+    // Apply email status filter if provided and not "All"
+    if (emailStatus && emailStatus !== 'All') {
+      query = query.eq('email_status', emailStatus);
+    }
 
     // Apply search filter if provided
     if (search) {
