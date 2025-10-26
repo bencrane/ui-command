@@ -85,13 +85,13 @@ export async function POST(request: NextRequest) {
       campaign_name: config.campaign_name,
       enrolled_at: new Date().toISOString(),
       contact_count: contacts.length,
-      contacts: contacts.map(contact => {
+      contacts: contacts.map((contact: any) => {
         // Build the contact data with only configured fields
         const contactData: any = { id: contact.id };
 
         // Add all db fields that are in the config
         allDbFields.forEach(field => {
-          contactData[field] = contact[field as keyof typeof contact] || null;
+          contactData[field] = contact[field] || null;
         });
 
         return contactData;
