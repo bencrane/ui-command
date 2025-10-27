@@ -112,11 +112,29 @@ export default function ContactsPage() {
         contacts: selectedContacts
       });
 
+      // POST to Pipedream via API route
+      const response = await fetch('/api/stage-contacts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          campaign: selectedCampaign,
+          contacts: selectedContacts,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to stage contacts');
+      }
+
       alert(`Successfully staged ${selectedContacts.length} contact${selectedContacts.length !== 1 ? 's' : ''} for campaign: ${selectedCampaign}`);
       setSelectedIds(new Set());
     } catch (error) {
       console.error('Staging error:', error);
-      alert('Failed to stage contacts');
+      alert(`Failed to stage contacts: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setStaging(false);
     }
@@ -125,7 +143,7 @@ export default function ContactsPage() {
   return (
     <div className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="text-2xl font-bold text-white bg-purple-600 px-4 py-2 rounded mb-2 inline-block">ICECREAM</div>
+        <div className="text-2xl font-bold text-white bg-green-600 px-4 py-2 rounded mb-2 inline-block">KIWI</div>
         <h1 className="text-3xl font-bold mb-2">UI Command Center</h1>
         <p className="text-gray-500 mb-8">Campaign Contacts</p>
 
