@@ -44,6 +44,49 @@ CREATE TABLE IF NOT EXISTS campaign_contacts (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Campaign Staged Contacts table: staging area for contacts being prepared for campaign delivery
+-- This is a denormalized table for the mode-based workflow (Enroll → Push)
+CREATE TABLE IF NOT EXISTS campaign_staged_contacts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    campaign_key TEXT NOT NULL,
+    campaign_name TEXT NOT NULL,
+
+    -- Contact information (denormalized for easy querying)
+    first_name TEXT,
+    last_name TEXT,
+    full_name TEXT,
+    work_email TEXT NOT NULL,
+    company_name TEXT,
+    company_domain TEXT,
+    job_title TEXT,
+
+    -- Transformed campaign data ready for delivery
+    campaign_final_values JSONB NOT NULL,
+
+    -- Workflow status tracking
+    status TEXT NOT NULL DEFAULT 'staged', -- staged | confirmed | sent | failed
+
+    -- Timestamps
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    sent_at TIMESTAMP WITH TIME ZONE,
+
+    -- Error tracking
+    error_message TEXT
+);
+
+-- Indexes for campaign_staged_contacts
+CREATE INDEX IF NOT EXISTS idx_campaign_staged_contacts_campaign_key ON campaign_staged_contacts(campaign_key);
+CREATE INDEX IF NOT EXISTS idx_campaign_staged_contacts_status ON campaign_staged_contacts(status);
+CREATE INDEX IF NOT EXISTS idx_campaign_staged_contacts_work_email ON campaign_staged_contacts(work_email);
+
+-- Add trigger for updated_at
+DROP TRIGGER IF EXISTS update_campaign_staged_contacts_updated_at ON campaign_staged_contacts;
+CREATE TRIGGER update_campaign_staged_contacts_updated_at
+    BEFORE UPDATE ON campaign_staged_contacts
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
 -- Create indexes for better query performance
 CREATE INDEX IF NOT EXISTS idx_people_company_id ON people(company_id);
 CREATE INDEX IF NOT EXISTS idx_contacts_person_id ON contacts(person_id);
