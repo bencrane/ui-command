@@ -774,7 +774,7 @@ export default function ContactsPage() {
               Please Select a Workflow Mode
             </h3>
             <p className="text-gray-500">
-              Choose either "Enroll Contacts" or "Push to Campaigns" to get started
+              Choose either &quot;Enroll Contacts&quot; or &quot;Push to Campaigns&quot; to get started
             </p>
           </div>
         )}
