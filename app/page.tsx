@@ -5,11 +5,7 @@ export default function Home() {
   return (
     <div className="min-h-screen p-8">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-yellow-400 text-black text-center p-8 mb-8 rounded-lg border-4 border-black">
-          <h1 className="text-6xl font-bold">🚨 TEST - DEPLOYMENT CHECK 🚨</h1>
-          <p className="text-2xl mt-4">If you see this, the deployment is working!</p>
-        </div>
-
+        <div className="text-2xl font-bold text-white bg-purple-600 px-4 py-2 rounded mb-4 inline-block">ICECREAM</div>
         <h1 className="text-3xl font-bold mb-4">UI Command Center</h1>
         <p className="text-gray-500 mb-8">Campaign Staging Dashboard</p>
 

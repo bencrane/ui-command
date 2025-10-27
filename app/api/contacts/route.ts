@@ -5,10 +5,11 @@ export async function GET(request: NextRequest) {
   try {
     console.log('=== CONTACTS API CALLED ===');
     const searchParams = request.nextUrl.searchParams;
-    const search = searchParams.get('search') || '';
-    const emailStatus = searchParams.get('email_status') || '';
+    const emailStatuses = searchParams.get('email_statuses') || '';
+    const companies = searchParams.get('companies') || '';
+    const title = searchParams.get('title') || '';
 
-    console.log('Search params:', { search, emailStatus });
+    console.log('Filter params:', { emailStatuses, companies, title });
 
     let query = supabase
       .from('contacts_view')
@@ -17,21 +18,24 @@ export async function GET(request: NextRequest) {
 
     console.log('Querying contacts_view...');
 
-    // Apply email status filter if provided and not "All"
-    if (emailStatus && emailStatus !== 'All') {
-      console.log('Applying email status filter:', emailStatus);
-      query = query.eq('email_status', emailStatus);
+    // Apply email status filter if provided (multiple statuses with OR)
+    if (emailStatuses) {
+      const statusList = emailStatuses.split(',').map(s => s.trim());
+      console.log('Applying email status filter (OR):', statusList);
+      query = query.in('email_status', statusList);
     }
 
-    // Apply search filter if provided
-    if (search) {
-      console.log('Applying search filter:', search);
-      // Search across name, company name, and job title
-      query = query.or(`
-        full_name.ilike.%${search}%,
-        company_name.ilike.%${search}%,
-        job_title.ilike.%${search}%
-      `);
+    // Apply company filter if provided
+    if (companies) {
+      const companyList = companies.split(',').map(c => c.trim());
+      console.log('Applying company filter:', companyList);
+      query = query.in('company_name', companyList);
+    }
+
+    // Apply title filter if provided
+    if (title) {
+      console.log('Applying title filter:', title);
+      query = query.ilike('job_title', `%${title}%`);
     }
 
     const { data, error } = await query;
