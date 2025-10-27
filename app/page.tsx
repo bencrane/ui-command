@@ -1,12 +1,11 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
-// Force redeploy
 export default function Home() {
   return (
     <div className="min-h-screen p-8">
       <div className="max-w-4xl mx-auto">
-        <div className="text-2xl font-bold text-white bg-green-600 px-4 py-2 rounded mb-4 inline-block">KIWI</div>
+        <div className="text-2xl font-bold text-white bg-purple-600 px-4 py-2 rounded mb-4 inline-block">LEMON</div>
         <h1 className="text-3xl font-bold mb-4">UI Command Center</h1>
         <p className="text-gray-500 mb-8">Campaign Staging Dashboard</p>
 
