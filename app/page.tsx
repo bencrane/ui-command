@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
+// Force redeploy
 export default function Home() {
   return (
     <div className="min-h-screen p-8">
